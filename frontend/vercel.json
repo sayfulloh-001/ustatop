@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "name": "ustatop-frontend",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "VITE_API_URL": "https://ustatop-backend.onrender.com/api"
+  }
+}

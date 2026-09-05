@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables — HECH QACHON GitHub ga yuklama!
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+
+# Database files — production da Neon ishlatiladi
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Uploads (local files)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# TypeScript cache
+*.tsbuildinfo

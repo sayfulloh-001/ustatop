@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER")
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  phone         String         @unique
+  role          String         @default("USER") // USER, ADMIN
+  firstName     String?
+  lastName      String?
+  age           Int?
+  avatarUrl     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  masterProfile MasterProfile?
+  favorites     Favorite[]
+  reviews       Review[]
+  payments      Payment[]
+
+  @@index([phone])
+}
+
+model MasterProfile {
+  id              String       @id @default(uuid())
+  userId          String       @unique
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName       String
+  lastName        String
+  profession      String       // Elektrik, Santexnik, Konditsioner ustasi, etc.
+  experienceYears Int
+  age             Int
+  phone           String       // Verified phone from authenticated User account
+  description     String
+  city            String       // Toshkent, Samarqand, Farg'ona, etc.
+  district        String?      // Chilonzor, Yunusobod, etc.
+  telegramUsername String?     // optional @username for Telegram
+  profileImageUrl String?
+  status          String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  rating          Float        @default(5.0)
+  reviewCount     Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  favorites       Favorite[]
+  reviews         Review[]
+
+  @@index([status])
+  @@index([profession])
+  @@index([city])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  category    String   // Asbob-uskunalar, Qurilish mollari, Elektr, Santexnika, etc.
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  stock       Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model OtpCode {
+  id        String   @id @default(uuid())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+  @@index([expiresAt])
+}
+
+model Favorite {
+  id        String        @id @default(uuid())
+  userId    String
+  masterId  String
+  createdAt DateTime      @default(now())
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  master    MasterProfile @relation(fields: [masterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, masterId])
+  @@index([userId])
+}
+
+model Review {
+  id        String        @id @default(uuid())
+  userId    String
+  masterId  String
+  rating    Int
+  comment   String?
+  createdAt DateTime      @default(now())
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  master    MasterProfile @relation(fields: [masterId], references: [id], onDelete: Cascade)
+
+  @@index([masterId])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  paymeTransId    String?  // Payme tomonidan beriladigan tranzaksiya ID
+  paymeTime       BigInt?  // Payme timestamp (milliseconds)
+  amount          Float    // UZS tiyin (Payme tiyin ishlatadi, biz so'm da saqlaymiz)
+  status          String   @default("PENDING") // PENDING | PAID | FAILED | CANCELLED
+  purpose         String   @default("MASTER_REGISTRATION")
+  merchantTransId String   @unique // bizning ichki to'lov ID (order ID)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([merchantTransId])
+  @@index([paymeTransId])
+}
